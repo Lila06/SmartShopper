@@ -25,12 +25,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btn = (Button) findViewById(R.id.cameraButton);
+        Button btn = findViewById(R.id.cameraButton);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                ImageView myImageView = (ImageView) findViewById(R.id.imgview);
-                TextView txtView = (TextView) findViewById(R.id.textView);
+                ImageView myImageView = findViewById(R.id.imgview);
+                TextView txtView = findViewById(R.id.textView);
                 Bitmap myBitmap = BitmapFactory.decodeResource(
                         getApplicationContext().getResources(),
                         R.drawable.puppy);
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     //Called when the user taps the send button
     public void sendMessage(View view){
         Intent intent = new Intent(this, DisplayMessageActivity.class); //intent provides runtime binding between separate components, e.g. two activities
-        EditText editText = (EditText) findViewById(R.id.editText);
+        EditText editText = findViewById(R.id.editText);
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);

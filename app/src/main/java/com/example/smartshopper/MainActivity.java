@@ -1,24 +1,22 @@
 package com.example.smartshopper;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.graphics.Camera;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
@@ -35,6 +33,25 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 101;
     private TextView textView;
     private BarcodeDetector detector;
+    private AlertDialog detailDialog;
+    private SearchRequest searchRequest = new SearchRequest(new SearchRequest.ResultCallback() {
+        @Override
+        public void onResponse(String response) {
+            if (detailDialog == null || !detailDialog.isShowing()) {
+                detailDialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Detail information")
+                        .setMessage(response)
+                        .setPositiveButton("close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                textView.setText(R.string.barcode_scanner);
+                            }
+                        })
+                        .create();
+                detailDialog.show();
+            }
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         detector = new BarcodeDetector.Builder(MainActivity.this)
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
                 .build();
-        if(!detector.isOperational()){
+        if (!detector.isOperational()) {
             textView.setText("Could not set up the detector!");
             return;
         }
@@ -62,20 +79,22 @@ public class MainActivity extends AppCompatActivity {
             public void surfaceCreated(SurfaceHolder holder) {
 
                 try {
-                    if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                         cameraSource.start(surfaceView.getHolder());
-                    }else{
+                    } else {
                         ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                         cameraSource.start(surfaceView.getHolder());
                     }
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
             }
+
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 detector.release();
@@ -91,15 +110,22 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
+            public void receiveDetections(final Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> qrCodes = detections.getDetectedItems();
 
-                if(qrCodes.size() > 0){ textView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        textView.setText(qrCodes.valueAt(0).displayValue);
-                    }
-                });}
+                if (qrCodes.size() > 0) {
+                    textView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String qrCode = qrCodes.valueAt(0).displayValue;
+                            textView.setText(qrCode);
+
+                            if (detailDialog == null || !detailDialog.isShowing()) {
+                                searchRequest.search(qrCode);
+                            }
+                        }
+                    });
+                }
             }
         });
     }
@@ -107,8 +133,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-
-        (new SearchRequest()).search("9002490210304");
     }
 }

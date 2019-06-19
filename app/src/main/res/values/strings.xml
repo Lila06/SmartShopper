@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">SmartShopper</string>
     <string name="smartshopper">SmartShopper</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="button_send">Send</string>
+    <string name="barcode_scanner">Barcode-Scanner</string>
 </resources>

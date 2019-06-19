@@ -13,14 +13,16 @@ public class SearchRequest implements Callback<String> {
     private static final String BASE_URL = "http://opengtindb.org/";
 
     private RemoteDatabaseAPI databaseAPI;
+    private ResultCallback resultCallback;
 
-    public SearchRequest() {
+    public SearchRequest(ResultCallback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .build();
 
         databaseAPI = retrofit.create(RemoteDatabaseAPI.class);
+        resultCallback = callback;
     }
 
     public void search(String ean) {
@@ -32,10 +34,17 @@ public class SearchRequest implements Callback<String> {
     @Override
     public void onResponse(Call<String> call, Response<String> response) {
         Log.e("Debug", "search response: successful: " + response.isSuccessful() + " >>" + response.body());
+        if (resultCallback != null) {
+            resultCallback.onResponse(response.body());
+        }
     }
 
     @Override
     public void onFailure(Call<String> call, Throwable t) {
         Log.e("Debug", "search error: ", t);
+    }
+
+    public interface ResultCallback {
+        void onResponse(String response);
     }
 }

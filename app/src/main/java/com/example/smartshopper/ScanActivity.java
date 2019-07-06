@@ -4,14 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.smartshopper.data.ScannedProductRepository;
@@ -24,13 +23,11 @@ import java.io.IOException;
 
 public class ScanActivity extends AppCompatActivity {
 
-    public static final String EXTRA_MESSAGE = "com.example.smartshopper.MESSAGE";
+    private static final String TAG = "ScanActivity";
 
 
     private SurfaceView surfaceView;
     private CameraSource cameraSource;
-    private static final int REQUEST_CAMERA_PERMISSION = 200;
-    private static final int CAMERA_REQUEST = 101;
     private TextView textView;
     private BarcodeDetector detector;
 
@@ -40,13 +37,12 @@ public class ScanActivity extends AppCompatActivity {
     private SearchRequest searchRequest = new SearchRequest(new SearchRequest.ResultCallback() {
         @Override
         public void onResponse(String response) {
-            if(isSearchRequestRunning) {
+            if (isSearchRequestRunning) {
                 scannedProductRepository.saveProduct(eanOfSearchRequest, response);
                 Intent intent = new Intent(ScanActivity.this, ScanDetailsActivity.class);
                 intent.putExtra(ScanDetailsActivity.EXTRA_EAN, eanOfSearchRequest);
                 startActivity(intent);
             }
-
         }
     });
 
@@ -57,58 +53,62 @@ public class ScanActivity extends AppCompatActivity {
 
         scannedProductRepository = new ScannedProductRepository(this);
 
-        // View inflated = getLayoutInflater().inflate(R.layout.support_simple_spinner_dropdown_item,null);
-        // inflated.findViewById(R.id...)
-
         surfaceView = findViewById(R.id.cameraPreview);
         textView = findViewById(R.id.textView);
-
-        detector = new BarcodeDetector.Builder(ScanActivity.this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS)
-                .build();
-        if (!detector.isOperational()) {
-            textView.setText("Could not set up the detector!");
-            return;
-        }
-
-        cameraSource = new CameraSource.Builder(this, detector)
-                .setRequestedPreviewSize(1024, 768)
-                .setAutoFocusEnabled(true)
-                .build();
 
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-
                 try {
+                    initDetectorAndCamera();
                     if (ContextCompat.checkSelfPermission(ScanActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        cameraSource.start(surfaceView.getHolder());
-                    } else {
-                        ActivityCompat.requestPermissions(ScanActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                         cameraSource.start(surfaceView.getHolder());
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Start camera source failed: ", e);
                 }
             }
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+                // do nothing
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                detector.release();
                 cameraSource.stop();
                 cameraSource.release();
+                detector.release();
             }
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isSearchRequestRunning = false;
+
+        textView.setText(R.string.barcode_scanner);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    private void initDetectorAndCamera() {
+        detector = new BarcodeDetector.Builder(ScanActivity.this)
+                .setBarcodeFormats(Barcode.ALL_FORMATS)
+                .build();
+        if (!detector.isOperational()) {
+            textView.setText(R.string.barcode_scanner_error);
+        }
 
         detector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-                Toast.makeText(getApplicationContext(), "To prevent memory leaks barcode scanner has been stopped", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "To prevent memory leaks barcode scanner has been stopped");
             }
 
             @Override
@@ -132,12 +132,11 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
         });
+
+        cameraSource = new CameraSource.Builder(this, detector)
+                .setRequestedPreviewSize(1024, 768)
+                .setAutoFocusEnabled(true)
+                .build();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        isSearchRequestRunning = false;
-    }
 }

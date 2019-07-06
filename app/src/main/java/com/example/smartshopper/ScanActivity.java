@@ -1,7 +1,7 @@
 package com.example.smartshopper;
 
 import android.Manifest;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -10,11 +10,11 @@ import android.view.SurfaceView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.smartshopper.data.ScannedProductRepository;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -22,7 +22,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class ScanActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE = "com.example.smartshopper.MESSAGE";
 
@@ -33,35 +33,37 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 101;
     private TextView textView;
     private BarcodeDetector detector;
-    private AlertDialog detailDialog;
+
+    private ScannedProductRepository scannedProductRepository;
+    private boolean isSearchRequestRunning = false;
+    private long eanOfSearchRequest = 0L;
     private SearchRequest searchRequest = new SearchRequest(new SearchRequest.ResultCallback() {
         @Override
         public void onResponse(String response) {
-            if (detailDialog == null || !detailDialog.isShowing()) {
-                detailDialog = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Detail information")
-                        .setMessage(response)
-                        .setPositiveButton("close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                textView.setText(R.string.barcode_scanner);
-                            }
-                        })
-                        .create();
-                detailDialog.show();
+            if(isSearchRequestRunning) {
+                scannedProductRepository.saveProduct(eanOfSearchRequest, response);
+                Intent intent = new Intent(ScanActivity.this, ScanDetailsActivity.class);
+                intent.putExtra(ScanDetailsActivity.EXTRA_EAN, eanOfSearchRequest);
+                startActivity(intent);
             }
+
         }
     });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_scan);
+
+        scannedProductRepository = new ScannedProductRepository(this);
+
+        // View inflated = getLayoutInflater().inflate(R.layout.support_simple_spinner_dropdown_item,null);
+        // inflated.findViewById(R.id...)
 
         surfaceView = findViewById(R.id.cameraPreview);
         textView = findViewById(R.id.textView);
 
-        detector = new BarcodeDetector.Builder(MainActivity.this)
+        detector = new BarcodeDetector.Builder(ScanActivity.this)
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
                 .build();
         if (!detector.isOperational()) {
@@ -79,10 +81,10 @@ public class MainActivity extends AppCompatActivity {
             public void surfaceCreated(SurfaceHolder holder) {
 
                 try {
-                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(ScanActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                         cameraSource.start(surfaceView.getHolder());
                     } else {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                        ActivityCompat.requestPermissions(ScanActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                         cameraSource.start(surfaceView.getHolder());
                     }
                 } catch (IOException e) {
@@ -120,8 +122,10 @@ public class MainActivity extends AppCompatActivity {
                             String qrCode = qrCodes.valueAt(0).displayValue;
                             textView.setText(qrCode);
 
-                            if (detailDialog == null || !detailDialog.isShowing()) {
+                            if (!isSearchRequestRunning) {
+                                eanOfSearchRequest = Long.valueOf(qrCode);
                                 searchRequest.search(qrCode);
+                                isSearchRequestRunning = true;
                             }
                         }
                     });
@@ -133,5 +137,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        isSearchRequestRunning = false;
     }
 }

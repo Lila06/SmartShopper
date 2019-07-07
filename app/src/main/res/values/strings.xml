@@ -7,7 +7,7 @@
     <string name="barcode_scanner_error">Could not set up the detector!</string>
 
     <string name="scan_details_title">Details</string>
-    <string name="scan_details_ingredients">Zutaten</string>
+    <string name="scan_details_description">Beschreibung</string>
     <string name="scan_details_packaging">Verpackung</string>
-    <string name="scan_details_allergene">Allergene</string>
+    <string name="scan_details_allergen">Allergene</string>
 </resources>

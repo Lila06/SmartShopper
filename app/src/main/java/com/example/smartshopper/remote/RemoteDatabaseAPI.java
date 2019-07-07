@@ -1,4 +1,4 @@
-package com.example.smartshopper;
+package com.example.smartshopper.remote;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

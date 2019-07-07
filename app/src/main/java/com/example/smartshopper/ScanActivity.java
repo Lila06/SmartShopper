@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.smartshopper.data.LocalProductRepository;
 import com.example.smartshopper.data.ScannedProductRepository;
+import com.example.smartshopper.remote.SearchRequest;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;

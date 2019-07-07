@@ -1,6 +1,8 @@
-package com.example.smartshopper;
+package com.example.smartshopper.remote;
 
 import android.util.Log;
+
+import com.example.smartshopper.remote.RemoteDatabaseAPI;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -10,6 +12,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class SearchRequest implements Callback<String> {
 
+    private static final String TAG = "SearchRequest";
     private static final String BASE_URL = "http://opengtindb.org/";
 
     private RemoteDatabaseAPI databaseAPI;
@@ -27,7 +30,7 @@ public class SearchRequest implements Callback<String> {
 
     public void search(String ean) {
         Call<String> call = databaseAPI.searchProduct(ean);
-         call.enqueue(this);
+        call.enqueue(this);
     }
 
 
@@ -38,7 +41,7 @@ public class SearchRequest implements Callback<String> {
         ErrorCode errorCode = extractErrorCode(response.body());
         if (errorCode == ErrorCode.CODE_0) {
             resultCallback.onResponse(response.body());
-        } else  {
+        } else {
             resultCallback.onResponseError(errorCode, response.body());
         }
     }
@@ -46,14 +49,14 @@ public class SearchRequest implements Callback<String> {
     @Override
     public void onFailure(Call<String> call, Throwable t) {
         Log.e("Debug", "search error: ", t);
-        resultCallback.onResponseError(ErrorCode.CODE_15,  "");
+        resultCallback.onResponseError(ErrorCode.CODE_15, "");
     }
 
     private ErrorCode extractErrorCode(String response) {
         for (String responsePart : response.split("\\n")) {
             if (responsePart.trim().startsWith("error")) {
-                int codeId = Integer.valueOf(responsePart.split("=")[1]);
-                return ErrorCode.fromCodeId(codeId);
+                String codeIdAsString = (responsePart.split("=")[1]);
+                return ErrorCode.fromCodeId(codeIdAsString);
             }
         }
         return ErrorCode.CODE_16;
@@ -61,6 +64,7 @@ public class SearchRequest implements Callback<String> {
 
     public interface ResultCallback {
         void onResponse(String response);
+
         void onResponseError(ErrorCode code, String response);
     }
 
@@ -95,12 +99,18 @@ public class SearchRequest implements Callback<String> {
             this.description = description;
         }
 
-        public static ErrorCode fromCodeId(int codeId) {
-            for (ErrorCode code: values()) {
-                if (code.id == codeId) {
-                    return code;
+        public static ErrorCode fromCodeId(String codeIdAsString) {
+            try {
+                int codeId = Integer.valueOf(codeIdAsString);
+                for (ErrorCode code : values()) {
+                    if (code.id == codeId) {
+                        return code;
+                    }
                 }
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "code conversion failed >>" + codeIdAsString + "<<", e);
             }
+
             return ErrorCode.CODE_16;
         }
     }

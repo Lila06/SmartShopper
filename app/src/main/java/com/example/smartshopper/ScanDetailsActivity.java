@@ -46,6 +46,7 @@ public class ScanDetailsActivity extends AppCompatActivity
 
         StringBuilder allergenDescription = new StringBuilder();
         for (String description : product.getAllergen()) {
+            allergenDescription.append("\u25CF ");
             allergenDescription.append(description);
             allergenDescription.append("\n");
         }
@@ -53,6 +54,7 @@ public class ScanDetailsActivity extends AppCompatActivity
 
         StringBuilder packagingDescription = new StringBuilder();
         for (String description : product.getPackaging()) {
+            packagingDescription.append("\u25CF ");
             packagingDescription.append(description);
             packagingDescription.append("\n");
         }

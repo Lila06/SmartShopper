@@ -115,9 +115,13 @@ public class ScanActivity extends AppCompatActivity implements SearchRequest.Res
                             textView.setText(qrCode);
 
                             if (!isSearchRequestRunning) {
-                                eanOfSearchRequest = Long.valueOf(qrCode);
-                                searchRequest.search(qrCode);
-                                isSearchRequestRunning = true;
+                                try {
+                                    eanOfSearchRequest = Long.valueOf(qrCode);
+                                    searchRequest.search(qrCode);
+                                    isSearchRequestRunning = true;
+                                } catch (NumberFormatException e) {
+                                    Toast.makeText(ScanActivity.this, "Scanned code is not an EAN", Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
                     });

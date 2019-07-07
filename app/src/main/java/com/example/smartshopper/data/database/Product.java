@@ -43,7 +43,10 @@ public class Product {
     private String findValueOf(String key, String[] source) {
         for (String sourcePart : source) {
             if (sourcePart.trim().startsWith(key)) {
-                return sourcePart.split("=")[1];
+                String[] keyValue = sourcePart.split("=");
+                if (keyValue.length > 1) {
+                    return keyValue[1].trim();
+                }
             }
         }
         return "";

@@ -1,11 +1,13 @@
 package com.example.smartshopper.data.database;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.example.smartshopper.data.util.ProductDecoder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity(tableName = "products")
 public class Product {
@@ -17,6 +19,21 @@ public class Product {
 
     public long scanned = 0L;
 
+    @Ignore
+    public boolean isSelected = false;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return ean == product.ean;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ean);
+    }
 
     public String getName() {
         return findValueOf("name", data.split("\\n"));

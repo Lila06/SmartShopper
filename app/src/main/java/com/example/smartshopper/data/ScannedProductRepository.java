@@ -37,7 +37,7 @@ public class ScannedProductRepository {
 
                 Log.i(TAG, "saved Product ean: " + product.ean + "\ndata: " + product.data + "\nscanned: " + product.scanned);
             }
-        }) ;
+        });
 
     }
 
@@ -60,8 +60,23 @@ public class ScannedProductRepository {
         });
     }
 
-    public List<Product> getAllProducts(GetAllProductCallback callback) {
-        return db.productDao().getAllProducts();
+    public void getAllProducts(final GetAllProductCallback callback) {
+        Handler ioHandler = ((AppApplication) context.getApplicationContext()).getIoHandler();
+        final Handler mainHandler = ((AppApplication) context.getApplicationContext()).getMainHandler();
+
+        ioHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final List<Product> allProducts = db.productDao().getAllProducts();
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onGetAllProducts(allProducts);
+                    }
+                });
+            }
+        });
     }
 
 

@@ -22,8 +22,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements ScannedProductRepository.GetAllProductCallback {
+public class MainActivity extends AppCompatActivity implements
+        ScannedProductRepository.GetMultipleProductCallback,
+        RecyclerProductAdapter.LongClickCallback {
 
     private static final int REQUEST_CAMERA_PERMISSION = 200;
 
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerProductAdapter adapter;
     private List<Product> products = new ArrayList<>();
+    private int selectedProductCounter = 0;
+    private FloatingActionButton fabCompare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +43,19 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabCamera = findViewById(R.id.fabCamera);
+        fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startScanActivity();
+            }
+        });
+
+        fabCompare = findViewById(R.id.fabCompare);
+        fabCompare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startProductCompareActivity();
             }
         });
 
@@ -53,7 +64,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new RecyclerProductAdapter(products);
+        adapter = new RecyclerProductAdapter(products, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -61,6 +72,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        selectedProductCounter = 0;
+        updateCompareFab();
         scannedProductRepository.getAllProducts(this);
     }
 
@@ -74,17 +87,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void startScanActivity() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            Intent intent = new Intent(this, ScanActivity.class);
-            startActivity(intent);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        }
-    }
-
     @Override
-    public void onGetAllProducts(List<Product> products) {
+    public void onGetMultipleProducts(List<Product> products) {
         this.products = products;
         this.products.sort(new Comparator<Product>() {
             @Override
@@ -95,5 +99,51 @@ public class MainActivity extends AppCompatActivity
 
         adapter.setProducts(this.products);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLongClickUpdate(boolean isSelected) {
+        if (isSelected) {
+            selectedProductCounter++;
+        } else {
+            selectedProductCounter--;
+        }
+        updateCompareFab();
+    }
+
+    private void updateCompareFab() {
+        if (selectedProductCounter > 1) {
+            fabCompare.show();
+        } else {
+            fabCompare.hide();
+        }
+    }
+
+    private void startScanActivity() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            Intent intent = new Intent(this, ScanActivity.class);
+            startActivity(intent);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
+    }
+
+    private void startProductCompareActivity() {
+        List<Long> eansList = new ArrayList<>();
+
+        for (Product product : products) {
+            if (product.isSelected) {
+                eansList.add(product.ean);
+            }
+        }
+
+        long[] eans = new long[eansList.size()];
+        for (int i = 0; i < eansList.size(); i++) {
+            eans[i] = eansList.get(i);
+        }
+
+        Intent intent = new Intent(this, ProductCompareActivity.class);
+        intent.putExtra(ProductCompareActivity.EXTRA_EANS, eans);
+        startActivity(intent);
     }
 }

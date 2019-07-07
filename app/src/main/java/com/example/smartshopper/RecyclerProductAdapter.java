@@ -17,9 +17,11 @@ import java.util.List;
 public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProductAdapter.ProductViewHolder> {
 
     private List<Product> products;
+    private LongClickCallback longClickCallback;
 
-    RecyclerProductAdapter(List<Product> products) {
+    RecyclerProductAdapter(List<Product> products, LongClickCallback longClickCallback) {
         this.products = products;
+        this.longClickCallback = longClickCallback;
     }
 
     @NonNull
@@ -53,6 +55,7 @@ public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProduct
                 } else {
                     holder.productSelectedIndicator.setVisibility(View.INVISIBLE);
                 }
+                longClickCallback.onLongClickUpdate(product.isSelected);
                 return true;
             }
         });
@@ -100,5 +103,9 @@ public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProduct
         Intent intent = new Intent(context, ScanDetailsActivity.class);
         intent.putExtra(ScanDetailsActivity.EXTRA_EAN, ean);
         context.startActivity(intent);
+    }
+
+    public interface LongClickCallback {
+        void onLongClickUpdate(boolean isSelected);
     }
 }

@@ -4,4 +4,10 @@
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
     <string name="barcode_scanner">Barcode-Scanner</string>
+    <string name="barcode_scanner_error">Could not set up the detector!</string>
+
+    <string name="scan_details_title">Details</string>
+    <string name="scan_details_description">Beschreibung</string>
+    <string name="scan_details_packaging">Verpackung</string>
+    <string name="scan_details_allergen">Allergene</string>
 </resources>

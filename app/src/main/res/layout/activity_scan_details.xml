@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ScanDetailsActivity"
+    tools:ignore="SpUsage">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/scanDetailsStartGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/scanDetailsEndGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp" />
+
+        <TextView
+            android:id="@+id/scanDetailsTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/scan_details_title"
+            android:textColor="@android:color/black"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/scanDetailsNameValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsTitle"
+            tools:text="Test Product" />
+
+        <TextView
+            android:id="@+id/scanResultDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/scan_details_description"
+            android:textColor="@android:color/black"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsNameValue" />
+
+        <TextView
+            android:id="@+id/scanResultDescriptionValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanResultDescription"
+            tools:layout_height="100dp"
+            tools:text="Beschreibung des Produktes" />
+
+        <TextView
+            android:id="@+id/scanDetailsAllergen"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/scan_details_allergen"
+            android:textColor="@android:color/black"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanResultDescriptionValue" />
+
+        <TextView
+            android:id="@+id/scanDetailsAllergenValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsAllergen"
+            tools:layout_height="100dp"
+            tools:text="vorhandene Allergene" />
+
+        <TextView
+            android:id="@+id/scanDetailsPackaging"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/scan_details_packaging"
+            android:textColor="@android:color/black"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsAllergenValue" />
+
+        <TextView
+            android:id="@+id/scanDetailsPackagingValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsPackaging"
+            tools:layout_height="100dp"
+            tools:text="Verpackungsbeschreibung" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            app:layout_constraintEnd_toEndOf="@id/scanDetailsEndGuideline"
+            app:layout_constraintStart_toStartOf="@id/scanDetailsStartGuideline"
+            app:layout_constraintTop_toBottomOf="@id/scanDetailsPackagingValue" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

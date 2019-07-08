@@ -2,8 +2,6 @@ package com.example.smartshopper.remote;
 
 import android.util.Log;
 
-import com.example.smartshopper.remote.RemoteDatabaseAPI;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,8 +53,11 @@ public class SearchRequest implements Callback<String> {
     private ErrorCode extractErrorCode(String response) {
         for (String responsePart : response.split("\\n")) {
             if (responsePart.trim().startsWith("error")) {
-                String codeIdAsString = (responsePart.split("=")[1]);
-                return ErrorCode.fromCodeId(codeIdAsString);
+                String[] keyValue = responsePart.split("=");
+                if (keyValue.length > 1) {
+                    String codeIdAsString = keyValue[1].trim();
+                    return ErrorCode.fromCodeId(codeIdAsString);
+                }
             }
         }
         return ErrorCode.CODE_16;

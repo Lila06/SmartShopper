@@ -13,19 +13,23 @@ public class ProductDecoder {
         List<String> result = new ArrayList<>();
         int code = 0;
 
-        try {
-            code = Integer.valueOf(codeAsString);
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Code conversion failed >> " + codeAsString + " <<", e);
+        if (!codeAsString.isEmpty()) {
+            try {
+                code = Integer.valueOf(codeAsString);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Code conversion failed >> " + codeAsString + " <<", e);
+            }
         }
 
-        PackagingCode[] packagingCodes = PackagingCode.values();
-        for (int i = packagingCodes.length - 1; i >= 0; i--) {
-            PackagingCode packagingCode = packagingCodes[i];
+        if (code > 0) {
+            PackagingCode[] packagingCodes = PackagingCode.values();
+            for (int i = packagingCodes.length - 1; i >= 0; i--) {
+                PackagingCode packagingCode = packagingCodes[i];
 
-            if (code > 0 && code >= packagingCode.code) {
-                result.add(packagingCode.description);
-                code -= packagingCode.code;
+                if (code > 0 && code >= packagingCode.code) {
+                    result.add(packagingCode.description);
+                    code -= packagingCode.code;
+                }
             }
         }
 
@@ -36,19 +40,23 @@ public class ProductDecoder {
         List<String> result = new ArrayList<>();
         int code = 0;
 
-        try {
-            code = Integer.valueOf(codeAsString);
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Code conversion failed >> " + codeAsString + " <<", e);
+        if (!codeAsString.isEmpty()) {
+            try {
+                code = Integer.valueOf(codeAsString);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Code conversion failed >> " + codeAsString + " <<", e);
+            }
         }
 
-        AllergenCode[] allergenCodes = AllergenCode.values();
-        for (int i = allergenCodes.length - 1; i >= 0; i--) {
-            AllergenCode allergenCode = allergenCodes[i];
+        if (code > 0) {
+            AllergenCode[] allergenCodes = AllergenCode.values();
+            for (int i = allergenCodes.length - 1; i >= 0; i--) {
+                AllergenCode allergenCode = allergenCodes[i];
 
-            if (code > 0 && code >= allergenCode.code) {
-                result.add(allergenCode.description);
-                code -= allergenCode.code;
+                if (code > 0 && code >= allergenCode.code) {
+                    result.add(allergenCode.description);
+                    code -= allergenCode.code;
+                }
             }
         }
 

@@ -37,7 +37,7 @@ public class ScannedProductRepository {
 
                 Log.i(TAG, "saved Product ean: " + product.ean + "\ndata: " + product.data + "\nscanned: " + product.scanned);
             }
-        }) ;
+        });
 
     }
 
@@ -60,8 +60,42 @@ public class ScannedProductRepository {
         });
     }
 
-    public List<Product> getAllProducts(GetAllProductCallback callback) {
-        return db.productDao().getAllProducts();
+    public void getProducts(final long[] eans, final GetMultipleProductCallback callback) {
+        Handler ioHandler = ((AppApplication) context.getApplicationContext()).getIoHandler();
+        final Handler mainHandler = ((AppApplication) context.getApplicationContext()).getMainHandler();
+
+        ioHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final List<Product> products = db.productDao().getAllProductsByEans(eans);
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onGetMultipleProducts(products);
+                    }
+                });
+            }
+        });
+    }
+
+    public void getAllProducts(final GetMultipleProductCallback callback) {
+        Handler ioHandler = ((AppApplication) context.getApplicationContext()).getIoHandler();
+        final Handler mainHandler = ((AppApplication) context.getApplicationContext()).getMainHandler();
+
+        ioHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final List<Product> allProducts = db.productDao().getAllProducts();
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onGetMultipleProducts(allProducts);
+                    }
+                });
+            }
+        });
     }
 
 
@@ -69,7 +103,7 @@ public class ScannedProductRepository {
         void onGetProduct(Product product);
     }
 
-    public interface GetAllProductCallback {
-        void onGetAllProducts(List<Product> products);
+    public interface GetMultipleProductCallback {
+        void onGetMultipleProducts(List<Product> products);
     }
 }

@@ -72,6 +72,7 @@ public class AppApplication extends Application implements Application.ActivityL
     }
 
     public Handler getIoHandler() {
+        startIoThread();
         return  ioHandler;
     }
 

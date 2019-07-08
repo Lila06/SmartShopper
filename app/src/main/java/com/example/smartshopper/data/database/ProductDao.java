@@ -24,6 +24,9 @@ public interface ProductDao {
     @Query("SELECT * FROM products")
     List<Product> getAllProducts();
 
-    @Query("SELECT * FROM products WHERE ean LIKE :ean ORDER BY scanned DESC")
+    @Query("SELECT * FROM products WHERE ean LIKE :ean")
     Product getProductByEan(long ean);
+
+    @Query("SELECT * FROM products WHERE ean IN (:eans)")
+    List<Product> getAllProductsByEans(long[] eans);
 }

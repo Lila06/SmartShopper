@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -141,7 +142,11 @@ public class MainActivity extends AppCompatActivity implements
         fabCompare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startProductCompareActivity();
+                if (selectedProductCounter > 1) {
+                    startProductCompareActivity();
+                } else {
+                    Toast.makeText(MainActivity.this, "Nicht genügend Produkte zum Vergleich ausgewählt", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -162,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
 
         selectedProductCounter = 0;
-        updateCompareFab();
         scannedProductRepository.getAllProducts(this);
     }
 
@@ -196,15 +200,6 @@ public class MainActivity extends AppCompatActivity implements
             selectedProductCounter++;
         } else {
             selectedProductCounter--;
-        }
-        updateCompareFab();
-    }
-
-    private void updateCompareFab() {
-        if (selectedProductCounter > 1) {
-            fabCompare.show();
-        } else {
-            fabCompare.hide();
         }
     }
 

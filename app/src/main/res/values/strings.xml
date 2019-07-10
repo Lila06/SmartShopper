@@ -11,7 +11,7 @@
     <string name="scan_details_packaging">Verpackung</string>
     <string name="scan_details_allergen">Allergene</string>
     <string name="vegan">Vegan</string>
-    <string name="laktose">Laktose</string>
-    <string name="gluten">Gluten</string>
+    <string name="laktose">Laktosefrei</string>
+    <string name="gluten">Glutenfrei</string>
     <string name="n_sse">Nüsse</string>
 </resources>

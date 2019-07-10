@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,15 +14,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smartshopper.data.database.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProductAdapter.ProductViewHolder> {
+public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProductAdapter.ProductViewHolder> implements Filterable {
 
     private List<Product> products;
+    private List<Product> filteredProducts;
     private LongClickCallback longClickCallback;
 
     RecyclerProductAdapter(List<Product> products, LongClickCallback longClickCallback) {
         this.products = products;
+        this.filteredProducts = new ArrayList<>(this.products);
         this.longClickCallback = longClickCallback;
     }
 
@@ -107,5 +112,41 @@ public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProduct
 
     public interface LongClickCallback {
         void onLongClickUpdate(boolean isSelected);
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Product> filteredList = new ArrayList<>();
+                if(constraint == null || constraint.length() == 0)
+                {
+                    filteredList.addAll(products);
+                }
+                else
+                {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for(Product item : products){
+                        for(String allergen : item.getAllergen()){
+                            if(allergen.toLowerCase().contains(filterPattern)){
+                                filteredList.add(item);
+                            }
+                        }
+                    }
+                }
+               FilterResults results = new FilterResults();
+               results.values = filteredList;
+               return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                products.clear();
+                products.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+        };
     }
 }

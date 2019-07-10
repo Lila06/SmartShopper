@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +37,11 @@ public class MainActivity extends AppCompatActivity implements
     private List<Product> products = new ArrayList<>();
     private int selectedProductCounter = 0;
     private FloatingActionButton fabCompare;
+    private Switch switchVegan;
+    private Switch switchLaktose;
+    private Switch switchGluten;
+    private Switch switchNut;
+    private String isVegan, isLaktose, isGluten;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,65 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        switchVegan = findViewById(R.id.switchVegan);
+        switchVegan.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //TODO: set filter value for search results and future searches
+                if(isChecked)
+                {
+                    isVegan = "vegan";
+                    adapter.getFilter().filter(isVegan);
+                }
+                else
+                {
+                    isVegan = "";
+                }
+            }
+        });
+
+        switchLaktose = findViewById(R.id.switchLaktose);
+        switchLaktose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //TODO: set filter value for search results and future searches
+                if(isChecked)
+                {
+                    isLaktose = "laktosefrei";
+                    adapter.getFilter().filter(isLaktose);
+                }
+                else
+                {
+                    isLaktose = "";
+                }
+            }
+        });
+
+        switchGluten = findViewById(R.id.switchGluten);
+        switchGluten.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //TODO: set filter value for search results and future searches
+                if(isChecked)
+                {
+                    isGluten = "glutenfrei";
+                    adapter.getFilter().filter(isGluten);
+                }
+                else
+                {
+                    isGluten = "";
+                }
+            }
+        });
+
+        switchNut = findViewById(R.id.switchNut);
+        switchNut.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //TODO: set filter value for search results and future searches
+            }
+        });
 
         FloatingActionButton fabCamera = findViewById(R.id.fabCamera);
         fabCamera.setOnClickListener(new View.OnClickListener() {

@@ -2,6 +2,7 @@ package com.example.smartshopper;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -29,6 +30,12 @@ public class MainActivity extends AppCompatActivity implements
         RecyclerProductAdapter.LongClickCallback {
 
     private static final int REQUEST_CAMERA_PERMISSION = 200;
+    private static final String SHARED_PREFS = "sharedPrefs";
+    private static final String VEGAN_STATUS = "veganStatus";
+    private static final String GLUTEN_STATUS = "glutenStatus";
+    private static final String LAKTOSE_STATUS = "laktoseStatus";
+    private static final String FRUKTOSE_STATUS = "fruktoseStatus";
+    private boolean vStatus, gStatus, lStatus, fStatus;
 
     private ScannedProductRepository scannedProductRepository;
     private RecyclerView recyclerView;
@@ -40,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements
     private Switch switchVegan;
     private Switch switchLaktose;
     private Switch switchGluten;
-    private Switch switchNut;
-    private String isVegan, isLaktose, isGluten;
+    private Switch switchFruktose;
+    private String isVegan, isLaktose, isGluten, isFruktose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements
                 {
                     isVegan = "";
                 }
+                saveData();
             }
         });
 
@@ -81,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements
                 {
                     isLaktose = "";
                 }
+                saveData();
             }
         });
 
@@ -98,14 +107,25 @@ public class MainActivity extends AppCompatActivity implements
                 {
                     isGluten = "";
                 }
+                saveData();
             }
         });
 
-        switchNut = findViewById(R.id.switchNut);
-        switchNut.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switchFruktose = findViewById(R.id.switchFruktose);
+        switchFruktose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //TODO: set filter value for search results and future searches
+                if(isChecked)
+                {
+                    isFruktose = "fruktosefrei";
+                    adapter.getFilter().filter(isFruktose);
+                }
+                else
+                {
+                    isFruktose = "";
+                }
+                saveData();
             }
         });
 
@@ -132,6 +152,9 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         adapter = new RecyclerProductAdapter(products, this);
         recyclerView.setAdapter(adapter);
+
+        loadData();
+        updateViews();
     }
 
     @Override
@@ -211,5 +234,31 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, ProductCompareActivity.class);
         intent.putExtra(ProductCompareActivity.EXTRA_EANS, eans);
         startActivity(intent);
+    }
+
+    private void saveData(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(VEGAN_STATUS, switchVegan.isChecked());
+        editor.putBoolean(GLUTEN_STATUS, switchGluten.isChecked());
+        editor.putBoolean(LAKTOSE_STATUS, switchLaktose.isChecked());
+        editor.putBoolean(FRUKTOSE_STATUS,switchFruktose.isChecked());
+
+        editor.apply();
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        vStatus = sharedPreferences.getBoolean(VEGAN_STATUS, false);
+        gStatus = sharedPreferences.getBoolean(GLUTEN_STATUS, false);
+        lStatus = sharedPreferences.getBoolean(LAKTOSE_STATUS, false);
+        fStatus = sharedPreferences.getBoolean(FRUKTOSE_STATUS, false);
+    }
+
+    private void updateViews(){
+        switchVegan.setChecked(vStatus);
+        switchGluten.setChecked(gStatus);
+        switchLaktose.setChecked(lStatus);
+        switchFruktose.setChecked(fStatus);
     }
 }

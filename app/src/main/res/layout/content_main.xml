@@ -70,10 +70,10 @@
         tools:layout_editor_absoluteX="29dp"
         tools:layout_editor_absoluteY="52dp" />
     <Switch
-        android:id="@+id/switchNut"
+        android:id="@+id/switchFruktose"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/n_sse"
+        android:text="@string/fruktose"
         android:textSize="25sp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@+id/switchGluten"
@@ -91,7 +91,7 @@
         android:scrollbars="vertical"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="50dp"
-        app:layout_constraintTop_toBottomOf="@+id/switchNut"
+        app:layout_constraintTop_toBottomOf="@+id/switchFruktose"
         app:layout_constraintEnd_toEndOf="@+id/scanDetailsEndGuideline"
         app:layout_constraintStart_toStartOf="@+id/scanDetailsStartGuideline"
         app:layout_constraintBottom_toBottomOf="parent" />

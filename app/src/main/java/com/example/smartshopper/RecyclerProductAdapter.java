@@ -108,4 +108,5 @@ public class RecyclerProductAdapter extends RecyclerView.Adapter<RecyclerProduct
     public interface LongClickCallback {
         void onLongClickUpdate(boolean isSelected);
     }
+
 }

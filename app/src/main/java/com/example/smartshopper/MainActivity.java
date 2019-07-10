@@ -2,9 +2,13 @@ package com.example.smartshopper;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,14 +31,25 @@ public class MainActivity extends AppCompatActivity implements
         RecyclerProductAdapter.LongClickCallback {
 
     private static final int REQUEST_CAMERA_PERMISSION = 200;
+    private static final String SHARED_PREFS = "sharedPrefs";
+    private static final String VEGAN_STATUS = "veganStatus";
+    private static final String GLUTEN_STATUS = "glutenStatus";
+    private static final String LAKTOSE_STATUS = "laktoseStatus";
+    private static final String FRUKTOSE_STATUS = "fruktoseStatus";
+    private boolean vStatus, gStatus, lStatus, fStatus;
 
     private ScannedProductRepository scannedProductRepository;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerProductAdapter adapter;
     private List<Product> products = new ArrayList<>();
+    private List<Product> allProducts = new ArrayList<>();
     private int selectedProductCounter = 0;
     private FloatingActionButton fabCompare;
+    private Switch switchVegan;
+    private Switch switchLaktose;
+    private Switch switchGluten;
+    private Switch switchFruktose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +57,42 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        switchVegan = findViewById(R.id.switchVegan);
+        switchVegan.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateProductList();
+                saveData();
+            }
+        });
+
+        switchLaktose = findViewById(R.id.switchLaktose);
+        switchLaktose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateProductList();
+                saveData();
+            }
+        });
+
+        switchGluten = findViewById(R.id.switchGluten);
+        switchGluten.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateProductList();
+                saveData();
+            }
+        });
+
+        switchFruktose = findViewById(R.id.switchFruktose);
+        switchFruktose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateProductList();
+                saveData();
+            }
+        });
 
         FloatingActionButton fabCamera = findViewById(R.id.fabCamera);
         fabCamera.setOnClickListener(new View.OnClickListener() {
@@ -55,7 +106,11 @@ public class MainActivity extends AppCompatActivity implements
         fabCompare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startProductCompareActivity();
+                if (selectedProductCounter > 1) {
+                    startProductCompareActivity();
+                } else {
+                    Toast.makeText(MainActivity.this, "Nicht genügend Produkte zum Vergleich ausgewählt", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -66,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         adapter = new RecyclerProductAdapter(products, this);
         recyclerView.setAdapter(adapter);
+
+        loadData();
+        updateViews();
     }
 
     @Override
@@ -73,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
 
         selectedProductCounter = 0;
-        updateCompareFab();
         scannedProductRepository.getAllProducts(this);
     }
 
@@ -89,16 +146,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onGetMultipleProducts(List<Product> products) {
-        this.products = products;
-        this.products.sort(new Comparator<Product>() {
+        this.allProducts = products;
+        this.allProducts.sort(new Comparator<Product>() {
             @Override
             public int compare(Product o1, Product o2) {
                 return (int) (o2.scanned - o1.scanned);
             }
         });
 
-        adapter.setProducts(this.products);
-        adapter.notifyDataSetChanged();
+        updateProductList();
     }
 
     @Override
@@ -107,15 +163,6 @@ public class MainActivity extends AppCompatActivity implements
             selectedProductCounter++;
         } else {
             selectedProductCounter--;
-        }
-        updateCompareFab();
-    }
-
-    private void updateCompareFab() {
-        if (selectedProductCounter > 1) {
-            fabCompare.show();
-        } else {
-            fabCompare.hide();
         }
     }
 
@@ -146,4 +193,81 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra(ProductCompareActivity.EXTRA_EANS, eans);
         startActivity(intent);
     }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(VEGAN_STATUS, switchVegan.isChecked());
+        editor.putBoolean(GLUTEN_STATUS, switchGluten.isChecked());
+        editor.putBoolean(LAKTOSE_STATUS, switchLaktose.isChecked());
+        editor.putBoolean(FRUKTOSE_STATUS, switchFruktose.isChecked());
+
+        editor.apply();
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        vStatus = sharedPreferences.getBoolean(VEGAN_STATUS, false);
+        gStatus = sharedPreferences.getBoolean(GLUTEN_STATUS, false);
+        lStatus = sharedPreferences.getBoolean(LAKTOSE_STATUS, false);
+        fStatus = sharedPreferences.getBoolean(FRUKTOSE_STATUS, false);
+    }
+
+    private void updateViews() {
+        switchVegan.setChecked(vStatus);
+        switchGluten.setChecked(gStatus);
+        switchLaktose.setChecked(lStatus);
+        switchFruktose.setChecked(fStatus);
+    }
+
+    private void updateProductList() {
+        List<String> filerKeyWords = new ArrayList<>();
+        if (switchVegan.isChecked()) {
+            filerKeyWords.add("vegan");
+        }
+        if (switchLaktose.isChecked()) {
+            filerKeyWords.add("laktosefrei");
+        }
+        if (switchGluten.isChecked()) {
+            filerKeyWords.add("glutenfrei");
+        }
+        if (switchFruktose.isChecked()) {
+            filerKeyWords.add("fruktosefrei");
+        }
+
+        products = filterProducts(allProducts, filerKeyWords.toArray(new String[0]));
+        adapter.setProducts(products);
+        adapter.notifyDataSetChanged();
+    }
+
+    private List<Product> filterProducts(List<Product> allProducts, String... filterKeyWords) {
+        List<Product> filteredList = new ArrayList<>();
+
+        if (filterKeyWords.length == 0) {
+            filteredList.addAll(allProducts);
+        } else {
+            for (Product item : allProducts) {
+                StringBuilder builderAllergen = new StringBuilder();
+                for (String allergen : item.getAllergen()) {
+                    builderAllergen.append(allergen.toLowerCase());
+                    builderAllergen.append(" | ");
+                }
+
+                String allAllergens = builderAllergen.toString();
+                boolean isDeclared = true;
+                for (String filterKeyWord : filterKeyWords) {
+                    if (!allAllergens.contains(filterKeyWord)) {
+                        isDeclared = false;
+                        break;
+                    }
+                }
+
+                if (isDeclared) {
+                    filteredList.add(item);
+                }
+            }
+        }
+        return filteredList;
+    }
+
 }

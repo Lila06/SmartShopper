@@ -10,4 +10,9 @@
     <string name="scan_details_description">Beschreibung</string>
     <string name="scan_details_packaging">Verpackung</string>
     <string name="scan_details_allergen">Allergene</string>
+    <string name="vegan">Vegan</string>
+    <string name="laktose">Laktosefrei</string>
+    <string name="gluten">Glutenfrei</string>
+    <string name="fruktose">Fruktosefrei</string>
+    <string name="vergleich">Vergleich</string>
 </resources>
